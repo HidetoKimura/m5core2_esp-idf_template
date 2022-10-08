@@ -48,8 +48,8 @@ static void disp_init(void)
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.flush_cb = disp_driver_flush;
 	disp_drv.draw_buf = &disp_buf;
-    disp_drv.hor_res = LV_HOR_RES_MAX;
-    disp_drv.ver_res = LV_VER_RES_MAX;
+	disp_drv.hor_res = LV_HOR_RES_MAX;
+	disp_drv.ver_res = LV_VER_RES_MAX;
 	lv_disp_drv_register(&disp_drv);
 
 	// Register the touch screen. All of the properties of it
