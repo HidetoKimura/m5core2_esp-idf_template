@@ -21,6 +21,11 @@
 
 #define LV_TICK_PERIOD_MS 1
 
+#include "btstack_port_esp32.h"
+#include "btstack_run_loop.h"
+#include "hci_dump.h"
+#include "hci_dump_embedded_stdout.h"
+
 static uint64_t current_tick = 0;
 
 static void gui_timer_tick(void *arg)
@@ -36,12 +41,12 @@ static void gui_timer_tick(void *arg)
 
 static void disp_init(void)
 {
-	static lv_color_t bufs[2][DISP_BUF_SIZE];
+	static lv_color_t bufs[DISP_BUF_SIZE];
 	static lv_disp_draw_buf_t  disp_buf;
 	uint32_t size_in_px = DISP_BUF_SIZE;
 
 	// Set up the frame buffers
-	lv_disp_draw_buf_init(&disp_buf, &bufs[0], &bufs[1], size_in_px);
+	lv_disp_draw_buf_init(&disp_buf, bufs, NULL, size_in_px);
 
 	// Set up the display driver
 	static lv_disp_drv_t disp_drv;
@@ -117,6 +122,7 @@ static void gui_thread(void *pvParameter)
 	// Never returns
 }
 
+extern int btstack_main(int argc, const char * argv[]);
 
 void app_main(void)
 {
@@ -149,9 +155,22 @@ void app_main(void)
 	printf("Running...\n");
 	fflush(stdout);
 
+    // optional: enable packet logger
+    // hci_dump_init(hci_dump_embedded_stdout_get_instance());
+
+    // Configure BTstack for ESP32 VHCI Controller
+    btstack_init();
+
+    // Setup example
+    btstack_main(0, NULL);
+
+    // Enter run loop (forever)
+    btstack_run_loop_execute();
+
 	for ( ; ; ) {
 		vTaskDelay(portMAX_DELAY);
 	}
+
 	printf("Restarting now.\n");
 	esp_restart();
 }
